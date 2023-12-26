@@ -25,21 +25,30 @@ function mm_ilb_style_script()
 add_action(('admin_enqueue_scripts'), 'mm_ilb_style_script');
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function mm_wp_internal_link_building_filter_content($content)
 {
     $fields = carbon_get_theme_option('mm_wp_ilb');
     $open_in_new_tab = carbon_get_theme_option('mm_wp_ilb_open_new_tab');
-    $replaced_keywords = array();
 
     if (!empty($fields)) {
         foreach ($fields as $field) {
             $keyword = $field['mm_wp_ilb_keyword'];
             $url = $field['mm_wp_ilb_url'];
-
-            // Skip if the keyword has already been replaced
-            if (in_array($keyword, $replaced_keywords)) {
-                continue;
-            }
 
             $rel_attributes = [];
             if (!$field['mm_wp_ilb_dofollow']) {
@@ -64,11 +73,12 @@ function mm_wp_internal_link_building_filter_content($content)
                 esc_html($keyword)
             );
 
-            // Replace only the first occurrence of the keyword in the content
-            $content = preg_replace('/\b' . preg_quote($keyword, '/') . '\b/', $replacement, $content, 1);
-
-            // Add keyword to the list of replaced keywords
-            $replaced_keywords[] = $keyword;
+            // Process only <p> tags
+            $content = preg_replace_callback('/<p>(.*?)<\/p>/si', function ($matches) use ($keyword, $replacement) {
+                $paragraph_content = $matches[1];
+                // Replace only the first occurrence of the keyword in the paragraph
+                return '<p>' . preg_replace('/\b' . preg_quote($keyword, '/') . '\b/', $replacement, $paragraph_content, 1) . '</p>';
+            }, $content);
         }
     }
 
