@@ -4,7 +4,7 @@
  * Plugin Name: MM WP Internal Link Building
  * Plugin URI: https://budiharyono.id/
  * Description: Internal Link Building for WordPress
- * Version: Beta.v1.0.0
+ * Version: Beta.v1.0.1
  * Author: Budi Haryono
  * Author URI: https://budiharyono.id/
  * License: GPL2
@@ -25,12 +25,10 @@ function mm_ilb_style_script()
 add_action(('admin_enqueue_scripts'), 'mm_ilb_style_script');
 
 
-
-
 function mm_wp_internal_link_building_filter_content($content)
 {
     $fields = carbon_get_theme_option('mm_wp_ilb');
-    $open_in_new_tab = carbon_get_theme_option('mm_wp_ilb_open_new_tab') === true;
+    $open_in_new_tab = carbon_get_theme_option('mm_wp_ilb_open_new_tab') === 'yes';
 
     if (!empty($fields)) {
         foreach ($fields as $field) {
@@ -38,33 +36,36 @@ function mm_wp_internal_link_building_filter_content($content)
             $url = $field['mm_wp_ilb_url'];
             $rel_attributes = [];
 
-            if ($field['mm_wp_ilb_dofollow'] !== true) {
+            if ($field['mm_wp_ilb_dofollow'] !== 'yes') {
                 $rel_attributes[] = 'nofollow';
             }
-            if ($field['mm_wp_ilb_noopener'] === true) {
+            if ($field['mm_wp_ilb_noopener'] === 'yes') {
                 $rel_attributes[] = 'noopener';
             }
-            if ($field['mm_wp_ilb_noreferrer'] === true) {
+            if ($field['mm_wp_ilb_noreferrer'] === 'yes') {
                 $rel_attributes[] = 'noreferrer';
             }
 
             $rel_attribute_string = implode(' ', $rel_attributes);
             $target = $open_in_new_tab ? ' target="_blank"' : '';
 
-            // Check if the keyword exists in the content
-            if (stripos($content, $keyword) !== false) {
-                $replacement = sprintf(
-                    '<a href="%s" title="%s"%s rel="%s">%s</a>',
-                    esc_url($url),
-                    esc_attr($keyword),
-                    $target,
-                    esc_attr($rel_attribute_string),
-                    esc_html($keyword)
-                );
+            $replacement = sprintf(
+                '<a href="%s" title="%s"%s rel="%s">%s</a>',
+                esc_url($url),
+                esc_attr($keyword),
+                $target,
+                esc_attr($rel_attribute_string),
+                esc_html($keyword)
+            );
 
-                // Replace only the first occurrence of the keyword with a link
-                $content = preg_replace('/' . preg_quote($keyword, '/') . '/', $replacement, $content, 1);
-            }
+            // Replace only the first occurrence of the keyword within <p> and <li> tags
+            $content = preg_replace_callback('/(<p>.*?<\/p>|<li>.*?<\/li>)/s', function ($matches) use ($keyword, $replacement) {
+                $tag_content = $matches[0];
+                if (stripos($tag_content, $keyword) !== false) {
+                    return preg_replace('/' . preg_quote($keyword, '/') . '/', $replacement, $tag_content, 1);
+                }
+                return $tag_content;
+            }, $content);
         }
     }
 
