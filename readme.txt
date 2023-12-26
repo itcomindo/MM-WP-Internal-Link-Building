@@ -9,3 +9,6 @@ Fitur:
 - Opsional untuk menambahkan atribut nofollow ke link internal
 - Opsional untuk menambahkan atribut target ke link internal
 - Opsional untuk menambahkan atribut noreferrer ke link internal
+
+
+Detail: https://budiharyono.id/repo/654/mm-wp-internal-external-link-building/
