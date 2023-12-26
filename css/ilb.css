@@ -1,0 +1,22 @@
+.cf-container__fields {
+  background-color: #dddddd !important;
+}
+
+.cf-complex__group {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2) inset;
+}
+.cf-complex__group:nth-child(odd) * {
+  background-color: #ddd !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.cf-complex__group:nth-child(even) * {
+  background-color: #f0f0f1 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+.cf-checkbox__label {
+  color: #333333 !important;
+}
+.cf-field__label {
+  color: #333333 !important;
+}
